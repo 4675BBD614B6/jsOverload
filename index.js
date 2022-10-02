@@ -33,12 +33,14 @@ async function run() {
   document.close();
 }
 
-async function load(req) {
+async function load(req, onReqError) {
   if (req instanceof Promise)
-    req = await req;
+    req = await req.catch(onReqError || () => {});
   if (req instanceof Response)
-    document.write(await req.text());
-  else throw "req is not a reponse";
+    req = await req.text();
+  if (typeof req == "string")
+    document.write(req);
+  else throw "req is not a Promise<Reponse> or string";
 }
 
 function inject(func) {
